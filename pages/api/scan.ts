@@ -123,7 +123,7 @@ async function isMaliciousPackage(pkg: string): Promise<boolean> {
   try {
     const response = await fetch(`https://registry.npmjs.org/${pkg}`);
     if (!response.ok) return true; // If package does not exist, flag it as suspicious
-    const data = await response.json() as { versions: { [version: string]: any } };
+    const data = await response.json() as { versions: Record<string, { dist: { tarball: string } }> };
     return data.versions && Object.keys(data.versions).length === 0;
   } catch (error) {
     console.error(`Error checking package ${pkg}:`, error);

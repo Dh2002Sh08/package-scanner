@@ -8,7 +8,6 @@ interface PackageJson {
 }
 
 const Scan = () => {
-  const [file, setFile] = useState<File | null>(null);
   const [jsonData, setJsonData] = useState<PackageJson | null>(null);
   const [scanResult, setScanResult] = useState<string[]>([]);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -17,7 +16,6 @@ const Scan = () => {
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files ? e.target.files[0] : null;
     if (selectedFile) {
-      setFile(selectedFile);
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target && e.target.result) {
