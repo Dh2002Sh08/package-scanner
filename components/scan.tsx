@@ -9,13 +9,15 @@ interface PackageJson {
 
 const Scan = () => {
   const [jsonData, setJsonData] = useState<PackageJson | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<string[]>([]);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  // const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files ? e.target.files[0] : null;
     if (selectedFile) {
+      setFileName(selectedFile.name); // ✅ Display file name
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target && e.target.result) {
@@ -24,7 +26,7 @@ const Scan = () => {
             setJsonData(jsonContent);
           } catch (error) {
             console.error("Error parsing JSON:", error);
-            setToast({ message: "Invalid JSON format!", type: "error" });
+            // setToast({ message: "Invalid JSON format!", type: "error" });
           }
         }
       };
@@ -38,15 +40,16 @@ const Scan = () => {
       try {
         const result = await scanPackage(jsonData);
         setScanResult(result.issues);
-        setToast({
-          message: result.issues.length === 1 && result.issues[0] === "No issues found"
-            ? "No issues found!"
-            : "Security issues detected!",
-          type: result.issues.length === 1 && result.issues[0] === "No issues found" ? "success" : "error",
-        });
+        console.log(result);
+
+        // ✅ Fixes incorrect issue detection
+        // setToast({
+        //   message: result.issues.length === 0 ? "No issues found!" : "Security issues detected!",
+        //   type: result.issues.length === 0 ? "success" : "error",
+        // });
       } catch (error) {
         console.error("Error during scan:", error);
-        setToast({ message: "Failed to scan package", type: "error" });
+        // setToast({ message: "Failed to scan package", type: "error" });
       } finally {
         setIsLoading(false);
       }
@@ -54,12 +57,12 @@ const Scan = () => {
   };
 
   // Auto-dismiss toast after 3 seconds
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
+  // useEffect(() => {
+  //   if (toast) {
+  //     const timer = setTimeout(() => setToast(null), 3000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [toast]);
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
@@ -74,29 +77,6 @@ const Scan = () => {
           Upload your <code className="font-semibold">package.json</code> file to scan for
           vulnerabilities, malicious scripts, and security risks.
         </p>
-
-        {/* Trusted sources */}
-        <div className="mt-4 text-lg">
-          <span className="text-gray-700">Install packages from official websites:</span>
-          <div className="flex justify-center space-x-4 mt-2">
-            <a
-              href="https://www.npmjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 hover:underline transition"
-            >
-              npmjs.com
-            </a>
-            <a
-              href="https://deno.land/x"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 hover:underline transition"
-            >
-              deno.land/x
-            </a>
-          </div>
-        </div>
       </section>
 
       {/* File Upload & Scan */}
@@ -110,6 +90,11 @@ const Scan = () => {
             className="hidden"
           />
         </label>
+
+        {/* ✅ Display the uploaded file name */}
+        {fileName && (
+          <p className="mt-3 text-gray-700 text-sm">📄 Uploaded File: <strong>{fileName}</strong></p>
+        )}
 
         {jsonData && (
           <button
@@ -144,7 +129,7 @@ const Scan = () => {
       )}
 
       {/* Toast Notification */}
-      {toast && (
+      {/* {toast && (
         <div
           className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-md shadow-md text-white ${
             toast.type === "success" ? "bg-green-500" : "bg-red-500"
@@ -152,7 +137,7 @@ const Scan = () => {
         >
           {toast.message}
         </div>
-      )}
+      )} */}
     </div>
   );
 };
